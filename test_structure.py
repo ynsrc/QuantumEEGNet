@@ -153,7 +153,7 @@ def test_trainer():
             train_loader=train_loader,
             valid_loader=valid_loader,
             test_loader=test_loader,
-            config=config.model_config
+            config={**config.model_config, **config.training_config}
         )
         
         print("✓ Trainer created successfully")
@@ -240,9 +240,10 @@ def test_command_line_interface():
             train_loader=train_loader,
             valid_loader=valid_loader,
             test_loader=test_loader,
-            config=config.model_config
+            config={**config.model_config, **config.training_config}
         )
-        
+        assert trainer.config['epochs'] == args_epochs
+
         print("✓ Command line interface simulation successful")
         return True
     except Exception as e:

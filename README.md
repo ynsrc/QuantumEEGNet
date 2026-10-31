@@ -115,7 +115,7 @@ python examples/train_synthetic.py
 
 To train on the BCI Competition IV 2a dataset:
 
-1. **Download the dataset** and place it in the `data/` directory:
+1. **Prepare the dataset** and place the preprocessed MATLAB files in the `data/` directory:
    ```
    data/
    ├── BCIC_S01_T.mat
@@ -125,6 +125,14 @@ To train on the BCI Competition IV 2a dataset:
    ├── BCIC_S03_T.mat
    ├── BCIC_S03_E.mat
    └── ...
+   ```
+   The training file must contain `x_train` and `y_train`; the evaluation file must contain
+   `x_test` and `y_test`. The official competition download is not in this preprocessed
+   format, and this repository does not include a converter for the raw files.
+
+   Alternatively, you can use this script to get and prepare data folder:
+   ```
+   python download_data.py
    ```
 
 2. **Train the model**:
@@ -139,6 +147,8 @@ To train on the BCI Competition IV 2a dataset:
    # Customize training parameters
    python train_quantum_eegnet.py --dataset bci --subject 1 --epochs 150 --batch_size 32 --learning_rate 5e-4
    ```
+   Use `--data_path "C:\path\to\data"` if the files are stored outside the project directory.
+   BCI training defaults to four classes; synthetic training defaults to two.
 
 Or use the example script:
 

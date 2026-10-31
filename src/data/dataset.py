@@ -43,10 +43,16 @@ class BCIDataset:
         train_file = os.path.join(self.data_path, f'BCIC_S{self.subject:02d}_T.mat')
         test_file = os.path.join(self.data_path, f'BCIC_S{self.subject:02d}_E.mat')
         
-        if not os.path.exists(train_file):
-            raise FileNotFoundError(f"Training file not found: {train_file}")
-        if not os.path.exists(test_file):
-            raise FileNotFoundError(f"Test file not found: {test_file}")
+        missing_files = [path for path in (train_file, test_file) if not os.path.isfile(path)]
+        if missing_files:
+            missing_list = "\n".join(f"  - {path}" for path in missing_files)
+            raise FileNotFoundError(
+                "Required preprocessed BCI data file(s) are missing:\n"
+                f"{missing_list}\n"
+                f"Place both subject files in '{self.data_path}' or pass their directory "
+                "with --data_path. Expected MAT variables are x_train/y_train in the "
+                "training file and x_test/y_test in the evaluation file."
+            )
         
         train_data = io.loadmat(train_file)
         test_data = io.loadmat(test_file)

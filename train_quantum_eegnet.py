@@ -56,8 +56,8 @@ def main():
     # Synthetic data specific arguments
     parser.add_argument('--num_samples', type=int, default=1000,
                        help='Number of synthetic samples')
-    parser.add_argument('--num_classes', type=int, default=2,
-                       help='Number of classes for synthetic data')
+    parser.add_argument('--num_classes', type=int, default=None,
+                       help='Number of classes (defaults to 4 for BCI and 2 for synthetic data)')
     
     # Training arguments
     parser.add_argument('--epochs', type=int, default=50,
@@ -81,6 +81,8 @@ def main():
                        help='Device to use for training')
     
     args = parser.parse_args()
+    if args.num_classes is None:
+        args.num_classes = 4 if args.dataset == 'bci' else 2
     
     # Get device
     device = get_device(args.device)
@@ -127,11 +129,14 @@ def main():
     # Load dataset
     print(f"\nLoading {args.dataset} dataset...")
     if args.dataset == 'bci':
-        dataset = BCIDataset(
-            data_path=args.data_path,
-            subject=args.subject,
-            validation_ratio=config.data_config['validation_ratio']
-        )
+        try:
+            dataset = BCIDataset(
+                data_path=args.data_path,
+                subject=args.subject,
+                validation_ratio=config.data_config['validation_ratio']
+            )
+        except FileNotFoundError as exc:
+            parser.error(str(exc))
     else:
         dataset = SyntheticDataset(
             num_samples=args.num_samples,
@@ -171,7 +176,7 @@ def main():
         train_loader=train_loader,
         valid_loader=valid_loader,
         test_loader=test_loader,
-        config=config.model_config
+        config={**config.model_config, **config.training_config}
     )
     
     # Train model

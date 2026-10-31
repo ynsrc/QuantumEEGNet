@@ -96,7 +96,7 @@ def main():
         train_loader=train_loader,
         valid_loader=valid_loader,
         test_loader=test_loader,
-        config=config.model_config
+        config={**config.model_config, **config.training_config}
     )
     
     # Train model
@@ -127,7 +127,7 @@ def main():
         train_loader=train_loader,
         valid_loader=valid_loader,
         test_loader=test_loader,
-        config=classical_config
+        config={**classical_config, **config.training_config}
     )
     
     # Train classical model
