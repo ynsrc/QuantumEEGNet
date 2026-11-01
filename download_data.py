@@ -19,9 +19,9 @@ def preprocess_bci_2a_file(file_path):
 
     orig_fs = 250
 
-    # 4-38 Hz band-pass filter
+    # 1. Band-pass Filter Setup (8-30 Hz Mu/Beta band for Motor Imagery)
     nyq = 0.5 * orig_fs
-    b, a = signal.butter(3, [4 / nyq, 38 / nyq], btype='band')
+    b, a = signal.butter(3, [8.0 / nyq, 30.0 / nyq], btype='band')
 
     for run in data_struct:
         run_data = run[0, 0]
@@ -39,9 +39,15 @@ def preprocess_bci_2a_file(file_path):
         # The first 22 channels are EEG; exclude the last 3 EOG channels
         eeg_signals = X[:, :22]
 
-        # Filtering (zero phase shift)
+        # 2. Filtering (Zero-phase shift)
         filtered_eeg = signal.filtfilt(b, a, eeg_signals, axis=0)
 
+        # 3. Z-Score Normalization (Per-channel standardization)
+        mean = np.mean(filtered_eeg, axis=0, keepdims=True)
+        std = np.std(filtered_eeg, axis=0, keepdims=True)
+        norm_eeg = (filtered_eeg - mean) / (std + 1e-8)
+
+        # 4. Slicing Motor Imagery Trials
         for trig, label in zip(triggers, labels):
             start = int(trig)
 
@@ -49,9 +55,9 @@ def preprocess_bci_2a_file(file_path):
             slice_start = start + 124
             slice_end = start + 562
 
-            if slice_end <= len(filtered_eeg):
+            if slice_end <= len(norm_eeg):
                 # Shape: (438, 22) -> transpose -> (22, 438)
-                raw_segment = filtered_eeg[slice_start:slice_end, :]
+                raw_segment = norm_eeg[slice_start:slice_end, :]
                 trial_data = raw_segment.T.astype(np.float32)
 
                 all_trials.append(trial_data)
