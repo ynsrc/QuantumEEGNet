@@ -69,9 +69,10 @@ class BCIDataset:
         )
         
         # Preprocess data (time window selection)
-        x_train = x_train[:, :, :, 124:562]  # Select time window
-        x_valid = x_valid[:, :, :, 124:562]
-        x_test = x_test[:, :, :, 124:562]
+        if x_train.shape[-1] > 314:
+            x_train = x_train[:, :, :, 124:562]  # Select time window
+            x_valid = x_valid[:, :, :, 124:562]
+            x_test = x_test[:, :, :, 124:562]
         
         # Convert labels to long type
         y_train = y_train.long()
