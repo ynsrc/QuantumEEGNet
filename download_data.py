@@ -51,12 +51,12 @@ def preprocess_bci_2a_file(file_path):
         for trig, label in zip(triggers, labels):
             start = int(trig)
 
-            # dataset.py directly extracts the [124:562] slice (438 samples)
+            # Extract 314 samples to match dataset.py expected shape
             slice_start = start + 124
-            slice_end = start + 562
+            slice_end = slice_start + 314
 
             if slice_end <= len(norm_eeg):
-                # Shape: (438, 22) -> transpose -> (22, 438)
+                # Shape: (314, 22) -> transpose -> (22, 314)
                 raw_segment = norm_eeg[slice_start:slice_end, :]
                 trial_data = raw_segment.T.astype(np.float32)
 
@@ -66,7 +66,7 @@ def preprocess_bci_2a_file(file_path):
                 all_labels.append(int(label) - 1)
 
     if len(all_trials) == 0:
-        return np.empty((0, 22, 438), dtype=np.float32), np.empty((0,), dtype=np.int64)
+        return np.empty((0, 22, 314), dtype=np.float32), np.empty((0,), dtype=np.int64)
 
     return np.array(all_trials, dtype=np.float32), np.array(all_labels, dtype=np.int64)
 
